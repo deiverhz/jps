@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <title>SORTEOS JPS - Chances & Lotería Nacional</title>
+
+    <style>
+
+        h1{
+            margin: 2px;
+        }
+
+        h2{
+            font-size: 1.2em;
+            margin: 2px;
+        }
+
+        .caja {
+            padding: 20px;
+            border: solid 1px #666;
+            border-radius: 10px;
+            font-family: Arial, Helvetica, sans-serif;
+            margin-bottom: 20px;
+        }
+
+        #contenedor-loteria {
+            border-top: solid 10px #b02b09;
+        } 
+        
+        #contenedor-chances {
+            border-top: solid 10px #0053a6;
+        }     
+
+        .loteria, .chances {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: row;
+            font-size: 1.7em;
+            font-weight: bold;
+        }
+
+        #resultados-loteria, #resultados-chances {
+            margin-top: 30px;
+        }
+
+        .numero {
+            position: relative;
+            background: radial-gradient(circle, #fff, #999);
+            padding: 10px;
+            border-radius: 100%;
+            height: 30px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .serie {
+            position: relative;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="contenedor-loteria" class="caja">
+        <h1>Lotería Nacional</h1>
+        <h2><i><span id="fecha-loteria"></span> - <span id="sorteo-loteria"></span></i></h2>
+        <hr>
+        <div id="resultados-loteria"></div>
+    </div>
+    <div id="contenedor-chances" class="caja">
+        <h1>Chances</h1>
+        <h2><i><span id="fecha-chances"></span> - <span id="sorteo-chances"></span></i></h2>
+        <hr>
+        <div id="resultados-chances"></div>
+    </div>
+    <script>
+
+        async function getLoteria() {
+            let url = 'https://integration.jps.go.cr/api/App/loterianacional/last';
+            try {
+                let res = await fetch(url);
+                return await res.json();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        async function renderLoteria() {
+            let resultados = await getLoteria();
+            let html = '';
+            resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).sort().reverse().forEach(premio => {
+                let htmlSegment = `<div class="loteria">
+                                    <div class="numero">${premio.numero}</div> <div class="serie">${premio.serie}</div>
+                                </div>`;
+
+                html += htmlSegment;
+            });
+
+            let container = document.querySelector('#resultados-loteria');
+            container.innerHTML = html;
+
+            let fecha = document.querySelector('#fecha-loteria');
+            fecha.innerHTML = new Intl.DateTimeFormat('es-ES', {year: "numeric", month: "long", day: "numeric" }).format(new Date(resultados.fecha));
+
+            let sorteo = document.querySelector('#sorteo-loteria');
+            sorteo.innerHTML = "Sorteo #" + resultados.numeroSorteo;
+        }
+
+        renderLoteria();
+
+        async function getChances() {
+            let url = 'https://integration.jps.go.cr/api/App/chances/last';
+            try {
+                let res = await fetch(url);
+                return await res.json();
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        async function renderChances() {
+            let resultados = await getChances();
+            let html = '';
+            resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).forEach(premio => {
+                let htmlSegment = `<div class="chances">
+                                    <div class="numero">${premio.numero}</div> <div class="serie">${premio.serie}</div>
+                                </div>`;
+
+                html += htmlSegment;
+            });
+
+            let container = document.querySelector('#resultados-chances');
+            container.innerHTML = html;
+
+            let fecha = document.querySelector('#fecha-chances');
+            fecha.innerHTML = new Intl.DateTimeFormat('es-ES', {year: "numeric", month: "long", day: "numeric" }).format(new Date(resultados.fecha));
+
+            let sorteo = document.querySelector('#sorteo-chances');
+            sorteo.innerHTML = "Sorteo #" + resultados.numeroSorteo;
+        }
+
+        renderChances();
+    </script>
+  </body>
+</html>
