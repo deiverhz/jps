@@ -7,17 +7,60 @@
 
     <style>
 
-        h1{
+        html, body {
+            padding: 0;
+            margin: 0;
+            border: 0;
+            width: 100%;
+        }
+
+        .contenedor {
+            position: relative;
+            width: fit-content;
+            height: auto;
+            padding: 10px;
+            margin: 10px;
+        }
+
+        .boton {
+            position: relative;
+            padding: 10px;
+            margin-bottom: 20px;
+            height: auto;
+            width: 100%;
+            font-size: calc(1.7em + 1vw);
+            background-color: #008040;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .boton:active {
+            background-color: #00d269;
+        }
+
+        .boton:hover {
+            cursor: pointer;
+        }
+
+        h1 {
+            margin: 2px;
+            font-size: calc(1.7em + 1vw);
+        }
+
+        h2 {
+            font-size: calc(1em + 1vw);
             margin: 2px;
         }
 
-        h2{
-            font-size: 1.2em;
-            margin: 2px;
+        .subtitulo {
+            font-style: italic;
         }
 
         .caja {
-            padding: 20px;
+            position: relative;
+            width: fit-content;
+            padding: 10px;
             border: solid 1px #666;
             border-radius: 10px;
             font-family: Arial, Helvetica, sans-serif;
@@ -28,7 +71,7 @@
             border-top: solid 10px #b02b09;
         } 
         
-        #contenedor-chances {
+        .caja-chances {
             border-top: solid 10px #0053a6;
         }     
 
@@ -36,7 +79,7 @@
             margin-top: 15px;
             display: flex;
             flex-direction: row;
-            font-size: 1.7em;
+            font-size: calc(1.7em + 1vw);
             font-weight: bold;
         }
 
@@ -49,8 +92,8 @@
             background: radial-gradient(circle, #fff, #999);
             padding: 10px;
             border-radius: 100%;
-            height: 30px;
-            width: 30px;
+            height: auto;
+            width: auto;
             text-align: center;
         }
 
@@ -59,20 +102,75 @@
             padding: 10px;
             text-align: center;
         }
+
+        /*** Scroll Bar ***/
+
+        /* Works on Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #333 #ccc;
+        }
+        
+        /* Works on Chrome, Edge, and Safari */
+        *::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        *::-webkit-scrollbar-track {
+            background: #ccc;
+        }
+        
+        *::-webkit-scrollbar-thumb {
+            background-color: #333;
+            border-radius: 20px;
+            border: 3px solid #ccc;
+        } 
+
+        .loader {
+            position: relative;
+            margin: 20px;
+            border: 8px solid #333;
+            border-top: 8px solid #ccc;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
   </head>
   <body>
-    <div id="contenedor-loteria" class="caja">
-        <h1>Lotería Nacional</h1>
-        <h2><i><span id="fecha-loteria"></span> - <span id="sorteo-loteria"></span></i></h2>
-        <hr>
-        <div id="resultados-loteria"></div>
-    </div>
-    <div id="contenedor-chances" class="caja">
-        <h1>Chances</h1>
-        <h2><i><span id="fecha-chances"></span> - <span id="sorteo-chances"></span></i></h2>
-        <hr>
-        <div id="resultados-chances"></div>
+    <div class="contenedor">
+        <input type="button" title="RECARGAR" value="RECARGAR" class="boton" id="btn-recargar"/>
+        <div id="contenedor-loteria" class="caja">
+            <h1>Lotería Nacional</h1>
+            <h2 class="subtitulo"><span id="fecha-loteria"></span> - <span id="sorteo-loteria"></span></h2>
+            <hr>
+            <div id="resultados-loteria"><div class="loader"></div></div>
+        </div>
+        <div id="contenedor-chances0" class="caja caja-chances">
+            <h1>Chances</h1>
+            <h2 class="subtitulo"><span id="fecha-chances0"></span> - <span id="sorteo-chances0"></span></h2>
+            <hr>
+            <div id="resultados-chances0"><div class="loader"></div></div>
+        </div>
+        <div id="contenedor-chances1" class="caja caja-chances">
+            <h1>Chances</h1>
+            <h2 class="subtitulo"><span id="fecha-chances1"></span> - <span id="sorteo-chances1"></span></h2>
+            <hr>
+            <div id="resultados-chances1"><div class="loader"></div></div>
+        </div>
+        <div id="contenedor-chances2" class="caja caja-chances">
+            <h1>Chances</h1>
+            <h2 class="subtitulo"><span id="fecha-chances2"></span> - <span id="sorteo-chances2"></span></h2>
+            <hr>
+            <div id="resultados-chances2"><div class="loader"></div></div>
+        </div>
     </div>
     <script>
 
@@ -91,7 +189,7 @@
             let html = '';
             resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).sort().reverse().forEach(premio => {
                 let htmlSegment = `<div class="loteria">
-                                    <div class="numero">${premio.numero}</div> <div class="serie">${premio.serie}</div>
+                                    <div class="numero">${String(premio.numero).padStart(2, '0')}</div> <div class="serie">${premio.serie}</div>
                                 </div>`;
 
                 html += htmlSegment;
@@ -107,10 +205,8 @@
             sorteo.innerHTML = "Sorteo #" + resultados.numeroSorteo;
         }
 
-        renderLoteria();
-
         async function getChances() {
-            let url = 'https://integration.jps.go.cr/api/App/chances/last';
+            let url = 'https://integration.jps.go.cr/api/App/chances/page';
             try {
                 let res = await fetch(url);
                 return await res.json();
@@ -122,25 +218,43 @@
         async function renderChances() {
             let resultados = await getChances();
             let html = '';
-            resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).forEach(premio => {
+
+            for (var i = 0; i < 3; i++) {
+                resultados[i].premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).forEach(premio => {
                 let htmlSegment = `<div class="chances">
-                                    <div class="numero">${premio.numero}</div> <div class="serie">${premio.serie}</div>
+                                        <div class="numero">${String(premio.numero).padStart(2, '0')}</div> <div class="serie">${premio.serie}</div>
                                 </div>`;
 
-                html += htmlSegment;
-            });
+                    html += htmlSegment;
+                });
 
-            let container = document.querySelector('#resultados-chances');
-            container.innerHTML = html;
+                let container = document.querySelector('#resultados-chances' + i);
+                container.innerHTML = html;
 
-            let fecha = document.querySelector('#fecha-chances');
-            fecha.innerHTML = new Intl.DateTimeFormat('es-ES', {year: "numeric", month: "long", day: "numeric" }).format(new Date(resultados.fecha));
+                let fecha = document.querySelector('#fecha-chances' + i);
+                fecha.innerHTML = new Intl.DateTimeFormat('es-ES', {year: "numeric", month: "long", day: "numeric" }).format(new Date(resultados[i].fecha));
 
-            let sorteo = document.querySelector('#sorteo-chances');
-            sorteo.innerHTML = "Sorteo #" + resultados.numeroSorteo;
+                let sorteo = document.querySelector('#sorteo-chances' + i);
+                sorteo.innerHTML = "Sorteo #" + resultados[i].numeroSorteo;
+
+                html = '';
+            }
         }
 
-        renderChances();
+        function renderResults () {
+            renderLoteria();
+            renderChances();
+        }
+
+        renderResults();
+
+        const btn_reload = document.querySelector('#btn-recargar')
+
+        btn_reload.addEventListener('click', () => {
+            location.reload()
+            renderResults()
+        })
+
     </script>
   </body>
 </html>
