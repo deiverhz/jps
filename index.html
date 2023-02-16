@@ -187,7 +187,7 @@
         async function renderLoteria() {
             let resultados = await getLoteria();
             let html = '';
-            resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).forEach(premio => {
+            resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).sort((x,y) => x.type - y.type).forEach(premio => {
                 let htmlSegment = `<div class="loteria">
                                     <div class="numero">${String(premio.numero).padStart(2, '0')}</div> <div class="serie">${premio.serie}</div>
                                 </div>`;
