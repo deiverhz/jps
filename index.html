@@ -189,8 +189,9 @@
             let html = '';
             resultados.premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).sort((x,y) => x.tipo - y.tipo).forEach(premio => {
                 let htmlSegment = `<div class="loteria">
-                                    <div class="numero">${String(premio.numero).padStart(2, '0')}</div> <div class="serie">${String(premio.serie).padStart(2, '0')}</div>
-                                </div>`;
+                                    <div class="numero">${String(premio.numero).padStart(2, '0')}
+                                    </div> <div class="serie">${String(premio.serie).padStart(3, '0')}</div>
+                                  </div>`;
 
                 html += htmlSegment;
             });
@@ -222,8 +223,9 @@
             for (var i = 0; i < 3; i++) {
                 resultados[i].premios.filter(premio => premio.tipo === 1 || premio.tipo === 2 || premio.tipo === 3).forEach(premio => {
                 let htmlSegment = `<div class="chances">
-                                        <div class="numero">${String(premio.numero).padStart(2, '0')}</div> <div class="serie">${String(premio.serie).padStart(2, '0')}</div>
-                                </div>`;
+                                        <div class="numero">${String(premio.numero).padStart(2, '0')}</div> 
+                                        <div class="serie">${String(premio.serie).padStart(3, '0')}</div>
+                                  </div>`;
 
                     html += htmlSegment;
                 });
